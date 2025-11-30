@@ -1,97 +1,157 @@
 
-const products = [
-    
-    { id: 1, name: "Ondansetron", category: "Antiemetic", price: 150 },
-    { id: 2, name: "Chlorpromazine", category: "Antiemetic", price: 120 },
-    { id: 3, name: "Promethazine", category: "Antiemetic", price: 100 },
-    { id: 4, name: "Scopolamine", category: "Antiemetic", price: 180 },
-
-
-    { id: 5, name: "Metformin", category: "Antidiabetic", price: 80 },
-    { id: 6, name: "Sitagliptin", category: "Antidiabetic", price: 250 },
-    { id: 7, name: "Dapagliflozin", category: "Antidiabetic", price: 300 },
-    { id: 8, name: "Semaglutide", category: "Antidiabetic", price: 450 },
-    { id: 9, name: "Insulin", category: "Antidiabetic", price: 350 },
-    { id: 10, name: "Lantus", category: "Antidiabetic", price: 500 },
-
-   
-    { id: 11, name: "Quinine", category: "Antimalarial", price: 200 },
-    { id: 12, name: "Atovaquone-Proguanil", category: "Antimalarial", price: 450 },
-
-   
-];
-
-function renderProducts(productList) {
-    const container = document.getElementById("product-list");
-    container.innerHTML = "";
-
-    productList.forEach(p => {
-        const card = document.createElement("div");
-        card.classList.add("product-card");
-
-        card.innerHTML = `
-            <h3>${p.name}</h3>
-            <p>${p.category}</p>
-            <p>KES ${p.price}</p>
-            <button onclick="addToCart(${p.id})">Add to Cart</button>
-        `;
-
-        container.appendChild(card);
-    });
+function getCart() {
+    return JSON.parse(localStorage.getItem("jrx_cart") || "[]");
 }
 
-function searchProducts() {
-    const text = document.getElementById("search-box").value.toLowerCase();
-    const filtered = products.filter(p => p.name.toLowerCase().includes(text));
-    renderProducts(filtered);
+function saveCart(cart) {
+    localStorage.setItem("jrx_cart", JSON.stringify(cart));
+    updateCartCount();
 }
 
-function filterByCategory(category) {
-    if (category === "All") {
-        renderProducts(products);
+function addToCart(product) {
+    let cart = getCart();
+    let existing = cart.find(i => i.name === product.name);
+
+    if (existing) {
+        existing.qty++;
     } else {
-        const results = products.filter(p => p.category === category);
-        renderProducts(results);
+        cart.push({...product, qty: 1});
     }
+
+    saveCart(cart);
+    alert(product.name + " added to cart!");
 }
 
-let cart = [];
+function updateCartCount() {
+    let cart = getCart();
+    let total = cart.reduce((sum, i) => sum + i.qty, 0);
 
-function addToCart(id) {
-    const item = products.find(p => p.id === id);
-    cart.push(item);
-
-    localStorage.setItem("cart", JSON.stringify(cart));
-    alert(item.name + " added to cart!");
+    let badge = document.getElementById("cart-count");
+    if (badge) badge.innerText = total;
 }
 
+function extractProducts() {
+    let cards = document.querySelectorAll(".product-card");
+    let list = [];
 
-function displayCart() {
-    const cartItems = JSON.parse(localStorage.getItem("cart")) || [];
-    const table = document.getElementById("cart-table");
+    cards.forEach(card => {
+        let name = card.querySelector("h3").innerText;
+        let img = card.querySelector("img").src;
 
-    table.innerHTML = "";
-    let total = 0;
+        let lines = card.querySelectorAll("p");
+        let price = Number(lines[0].innerText.replace("KES ", ""));
+        let quantity = Number(lines[1].innerText.replace("Qty: ", ""));
 
-    cartItems.forEach((item, index) => {
-        total += item.price;
-        table.innerHTML += `
-            <tr>
-                <td>${item.name}</td>
-                <td>${item.price}</td>
-                <td><button onclick="removeItem(${index})">Remove</button></td>
-            </tr>
-        `;
+        list.push({ name, img, price, quantity, card });
     });
 
-    document.getElementById("total").innerText = "KES " + total;
+    return list;
 }
 
-function removeItem(index) {
-    const cartItems = JSON.parse(localStorage.getItem("cart")) || [];
-    cartItems.splice(index, 1);
-    localStorage.setItem("cart", JSON.stringify(cartItems));
-    displayCart();
+function attachAddButtons(products) {
+    products.forEach(p => {
+        let btn = document.createElement("button");
+        btn.innerText = "Add to Cart";
+        btn.style.marginTop = "10px";
+        btn.style.padding = "8px 12px";
+        btn.style.background = "#0b67a4";
+        btn.style.color = "white";
+        btn.style.border = "none";
+        btn.style.borderRadius = "8px";
+        btn.style.cursor = "pointer";
+
+        btn.onclick = (e) => {
+            e.stopPropagation(); 
+            addToCart(p);
+        };
+
+        p.card.appendChild(btn);
+    });
 }
 
+function createPopup(product) {
+    let popup = document.createElement("div");
+    popup.className = "jrx-popup";
+
+    popup.innerHTML = `
+    <div class="jrx-popup-inner">
+    <button class="jrx-close">×</button>
+    <img src="${product.img}" style="width:180px; border-radius:8px;">
+    <h2>${product.name}</h2>
+    <p><strong>Price:</strong> KES ${product.price}</p>
+    <p><strong>Available:</strong> ${product.quantity}</p>
+
+    <button id="popup-add" style="
+                background:#0b67a4; 
+                color:white; 
+                border:none; 
+                padding:10px 20px; 
+                border-radius:8px; 
+                margin-top:10px;">
+                Add to Cart
+            </button>
+        </div>
+    `;
+
+    document.body.appendChild(popup);
+
+    popup.querySelector(".jrx-close").onclick = () => popup.remove();
+
+    popup.querySelector("#popup-add").onclick = () => {
+        addToCart(product);
+        popup.remove();
+    };
+}
+
+function attachPopup(products) {
+    products.forEach(p => {
+        p.card.addEventListener("click", () => {
+            createPopup(p);
+        });
+    });
+}
+
+const popupStyles = `
+.jrx-popup {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+.jrx-popup-inner {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 260px;
+    text-align: center;
+    position: relative;
+}
+.jrx-close {
+    position: absolute;
+    top: 5px;
+    right: 8px;
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+}
+`;
+let styleSheet = document.createElement("style");
+styleSheet.innerText = popupStyles;
+document.head.appendChild(styleSheet);
+
+document.addEventListener("DOMContentLoaded", () => {
+    updateCartCount();
+
+    let products = extractProducts();
+    attachAddButtons(products);
+    attachPopup(products);
+});
+
+
+
+   
 
