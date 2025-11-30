@@ -151,7 +151,3 @@ document.addEventListener("DOMContentLoaded", () => {
     attachPopup(products);
 });
 
-
-
-   
-
