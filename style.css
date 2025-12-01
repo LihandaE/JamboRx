@@ -585,17 +585,7 @@ header {
 
 
 @media (max-width: 768px) {
-    .navbar ul {
-        display: none;
-        flex-direction: column;
-        width: 100%;
-        background: white;
-        padding: 15px;
-        position: absolute;
-        top: 70px;
-        left: 0;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
+   
 
     .navbar ul.show {
         display: flex;
