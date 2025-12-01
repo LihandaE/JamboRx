@@ -584,38 +584,7 @@ header {
 }
 
 
-@media (max-width: 768px) {
-   
 
-    .navbar ul.show {
-        display: flex;
-    }
-
-    header {
-        position: relative;
-    }
-
-    .reasons-container {
-        flex-direction: column;
-    }
-    
-    .user-options {
-        flex-direction: column;
-    }
-    .footer-container {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .social-icons {
-        justify-content: center;
-    }
-}
-@media (max-width: 600px) {
-    .product-grid {
-        grid-template-columns: repeat(1, 1fr);
-    }
-}
 
 
 
