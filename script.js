@@ -151,14 +151,5 @@ document.addEventListener("DOMContentLoaded", () => {
     attachPopup(products);
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-    const menuToggle = document.querySelector(".menu-toggle");
-    const navLinks = document.querySelector(".navbar ul");
 
-    if (menuToggle) {
-        menuToggle.addEventListener("click", () => {
-            navLinks.classList.toggle("show");
-        });
-    }
-});
 

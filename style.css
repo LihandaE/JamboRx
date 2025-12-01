@@ -582,14 +582,7 @@ header {
     border-radius: 6px;
     cursor: pointer;
 }
-.menu-toggle {
-    display: none;
-    font-size: 28px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #0b67a4;
-}
+
 
 @media (max-width: 768px) {
     .navbar ul {
