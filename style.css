@@ -601,10 +601,6 @@ header {
         display: flex;
     }
 
-    .menu-toggle {
-        display: block;
-    }
-
     header {
         position: relative;
     }
